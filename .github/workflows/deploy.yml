@@ -80,7 +80,7 @@ jobs:
           REL="/opt/app/releases/$SHA"
           JAR=$(ls build/libs/*.jar | grep -v plain || ls build/libs/*.jar | head -n1)
 
-          ssh -i private_key.pem $USER@$HOST "sudo mkdir -p $REL /opt/app/secure && sudo chown -R $USER:$USER /opt/app"
+          ssh -i private_key.pem $USER@$HOST "sudo mkdir -p $REL && sudo chown -R $USER:$USER /opt/app"
           scp -i private_key.pem "$JAR" $USER@$HOST:$REL/app.jar
           scp -i private_key.pem .env $USER@$HOST:/opt/app/.env
 
