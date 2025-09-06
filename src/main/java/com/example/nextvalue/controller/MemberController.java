@@ -5,18 +5,23 @@ import com.example.nextvalue.apiPayload.ApiResponse;
 import com.example.nextvalue.dto.DiaryEditDTO;
 import com.example.nextvalue.dto.MainPageDto;
 import com.example.nextvalue.dto.MyPageDTO;
+import com.example.nextvalue.dto.WalkResponse;
 import com.example.nextvalue.entity.Diary;
 import com.example.nextvalue.entity.Member;
 import com.example.nextvalue.memberdetail.MemberDetails;
 import com.example.nextvalue.repository.MemberRepository;
 import com.example.nextvalue.service.DiaryService;
 import com.example.nextvalue.service.MemberService;
+import com.example.nextvalue.service.WalkCounterService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -24,6 +29,7 @@ public class MemberController {
 
     private final MemberService memberService;
     private final DiaryService diaryService;
+    private final WalkCounterService walkCounterService;
 
     @GetMapping("/mypage")
     public ResponseEntity<ApiResponse<MyPageDTO>> getMyPage(@AuthenticationPrincipal MemberDetails memberDetails) {
@@ -53,6 +59,32 @@ public class MemberController {
         return ResponseEntity.ok(ApiResponse.success(null));
     }
 
+    @GetMapping("/member/{id}/friends")
+    public ResponseEntity<ApiResponse<List<Member>>> getFriends(@PathVariable("id") Long id){
+        return ResponseEntity.ok(ApiResponse.success(null,
+                memberService.getFriends(memberService.findMemberById(id))));
+    }
+
+    @PostMapping("/member/{id}/friends/add")
+    public ResponseEntity<?> addFriend(@PathVariable("id") Long id) {
+        Member foundMember = memberService.findMemberById(id);
+        memberService.addFriend(foundMember);
+        return ResponseEntity.ok(ApiResponse.success(null));
+    }
+
+    @GetMapping("/member/{id}/gallery")
+    public ResponseEntity<ApiResponse<List<String>>> getGallery(@PathVariable("id") Long id){
+        Member foundMember = memberService.findMemberById(id);
+        return ResponseEntity.ok(ApiResponse.success(null,foundMember.getGallery()));
+    }
+
+    @PostMapping("/member/{id}/gallery/add_picture")
+    public ResponseEntity<?> addPicture(@PathVariable("id") Long id, @RequestBody String image_uri){
+        Member foundMember = memberService.findMemberById(id);
+        foundMember.getGallery().add(image_uri);
+        return ResponseEntity.ok(ApiResponse.success(null));
+    }
+
 
     @GetMapping("/api/member/current-country")
     public ResponseEntity<ApiResponse<MainPageDto.CurrentCountry>> getCurrentCountry(@AuthenticationPrincipal MemberDetails memberDetails) {
@@ -60,4 +92,14 @@ public class MemberController {
         MainPageDto.CurrentCountry currentCountry = memberService.getCurrentCountry(memberDetails.getEmail());
         return ResponseEntity.ok(ApiResponse.success(null,currentCountry));
     }
+
+    @PatchMapping("/api/member/totalWalkCnt")
+    public ResponseEntity<ApiResponse<WalkResponse>> addTotalWalkCnt(
+            @AuthenticationPrincipal MemberDetails memberDetails,
+            @RequestParam("todayCount") int todayCount    // 프론트에서 전달
+    ) {
+        WalkResponse res = walkCounterService.applyTodayCount(memberDetails, todayCount);
+        return ResponseEntity.ok(ApiResponse.success("성공",res));
+    }
+
 }
