@@ -1,9 +1,7 @@
 package com.example.nextvalue.entity;
 
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -30,4 +28,9 @@ public class Member {
 
     // providerId : 구굴 로그인 한 유저의 고유 ID가 들어감
     private String providerId;
+
+    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    @JoinColumn(name = "diary_id")
+    private Diary diary;
+
 }
