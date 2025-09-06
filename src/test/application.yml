@@ -6,7 +6,6 @@ spring:
           google:
             client-id: ${GOOGLE_CLI}
             client-secret: ${GOOGLE_PASS}
-            redirect-uri: http://localhost:8080/login/oauth2/code/google
             scope:
               - email
               - profile
@@ -26,24 +25,20 @@ spring:
     username: sa
     password:
     driver-class-name: org.h2.Driver
-#    url: jdbc:mysql://${DB_HOST}:${DB_PORT}/${DB_NAME}?serverTimezone=Asia/Seoul&useLegacyDatetimeCode=false
-#    driver-class-name: com.mysql.cj.jdbc.Driver
-#    username: ${DB_USER}
-#    password: ${DB_PASSWORD}
   jpa:
     hibernate:
       ddl-auto: create
     show-sql: true
-#    properties:
-#      hibernate:
-#        format_sql: true
-#        dialect: org.hibernate.dialect.MySQLDialect  # MySQL8Dialect ?? MySQLDialect ??
+    properties:
+      hibernate:
+        format_sql: true
+        dialect: org.hibernate.dialect.MySQLDialect  # MySQL8Dialect ?? MySQLDialect ??
 
 jwt:
   secret-key: ${SECRET_KEY}
 
-#fcm:
-#  service-account-path: classpath:firebase/memento_fcm_key.json
-#
-#openai:
-#  api-key: ${OPENAI_API_KEY}
+fcm:
+  service-account-path: classpath:firebase/memento_fcm_key.json
+
+openai:
+  api-key: ${OPENAI_API_KEY}
