@@ -5,12 +5,14 @@ import com.example.nextvalue.apiPayload.ApiResponse;
 import com.example.nextvalue.dto.DiaryEditDTO;
 import com.example.nextvalue.dto.MainPageDto;
 import com.example.nextvalue.dto.MyPageDTO;
+import com.example.nextvalue.dto.WalkResponse;
 import com.example.nextvalue.entity.Diary;
 import com.example.nextvalue.entity.Member;
 import com.example.nextvalue.memberdetail.MemberDetails;
 import com.example.nextvalue.repository.MemberRepository;
 import com.example.nextvalue.service.DiaryService;
 import com.example.nextvalue.service.MemberService;
+import com.example.nextvalue.service.WalkCounterService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -24,6 +26,7 @@ public class MemberController {
 
     private final MemberService memberService;
     private final DiaryService diaryService;
+    private final WalkCounterService walkCounterService;
 
     @GetMapping("/mypage")
     public ResponseEntity<ApiResponse<MyPageDTO>> getMyPage(@AuthenticationPrincipal MemberDetails memberDetails) {
@@ -60,4 +63,14 @@ public class MemberController {
         MainPageDto.CurrentCountry currentCountry = memberService.getCurrentCountry(memberDetails.getEmail());
         return ResponseEntity.ok(ApiResponse.success(null,currentCountry));
     }
+
+    @PatchMapping("/api/member/totalWalkCnt")
+    public ResponseEntity<ApiResponse<WalkResponse>> addTotalWalkCnt(
+            @AuthenticationPrincipal MemberDetails memberDetails,
+            @RequestParam("todayCount") int todayCount    // 프론트에서 전달
+    ) {
+        WalkResponse res = walkCounterService.applyTodayCount(memberDetails, todayCount);
+        return ResponseEntity.ok(ApiResponse.success("성공",res));
+    }
+
 }

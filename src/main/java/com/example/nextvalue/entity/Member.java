@@ -30,10 +30,14 @@ public class Member {
     private String providerId;
 
     ///  total 만보기 횟수
+    @Column(nullable = false)
     private Long totalWalkCnt;
 
     @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinColumn(name = "diary_id")
     private Diary diary;
 
+    public void increaseTotalWalkCnt(int delta) {
+        this.totalWalkCnt += delta;
+    }
 }
