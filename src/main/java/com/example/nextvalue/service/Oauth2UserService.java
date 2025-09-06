@@ -54,7 +54,13 @@ public class Oauth2UserService extends DefaultOAuth2UserService {
         }
 
         Member returnMember = memberRepository.findByEmail(email);
+
+
+
         httpSession.setAttribute("loginMember", returnMember);
+
+
+
 
         return oAuth2User;
     }
