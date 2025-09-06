@@ -31,6 +31,14 @@ public class Member {
     // providerId : 구굴 로그인 한 유저의 고유 ID가 들어감
     private String providerId;
 
+    @ElementCollection(fetch = FetchType.LAZY)
+    @CollectionTable(
+            name = "gallery",
+            joinColumns = @JoinColumn(name = "member_id")
+    )
+    @Column(name = "images_url") // 3. 리스트의 String 값이 저장될 컬럼 이름
+    private List<String> Gallery;
+
     @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinColumn(name = "diary_id")
     private Diary diary;

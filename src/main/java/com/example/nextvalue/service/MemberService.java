@@ -28,4 +28,8 @@ public class MemberService {
     public void addFriend(Member member) {
         member.getFriends().add(member);
     }
+
+    public void addPictures(String images, Member member){
+        member.getGallery().add(images);
+    }
 }
