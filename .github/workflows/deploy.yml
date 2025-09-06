@@ -70,6 +70,7 @@ jobs:
           GOOGLE_CLI=${{ secrets.GOOGLE_CLI }}
           GOOGLE_PASS=${{ secrets.GOOGLE_PASS }}
           GPT_API_KEY=${{ secrets.GPT_API_KEY }}
+          PORT=${{ secrets.APP_PORT || 8080 }}
           EOF
           
 
