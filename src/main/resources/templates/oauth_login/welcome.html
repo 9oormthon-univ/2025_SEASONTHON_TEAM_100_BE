@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<h1>Login Success</h1>
+
+<div>
+    <p th:text="|Name : ${user.name}|"></p>
+    <p th:text="|Email : ${user.email}|"></p>
+    <img th:src="${user.image}" alt="empty">
+</div>
+</body>
+</html>
