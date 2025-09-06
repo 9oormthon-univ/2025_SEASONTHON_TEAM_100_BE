@@ -1,5 +1,6 @@
 package com.example.nextvalue.service;
 
+import com.example.nextvalue.auth.oauth.SocialLoginProvider;
 import com.example.nextvalue.config.exception.CustomException;
 import com.example.nextvalue.config.exception.ErrorCode;
 import com.example.nextvalue.dto.MainPageDto;
@@ -23,6 +24,9 @@ public class MemberService {
     private final CountryRepository countryRepository;
 
 
+    public Member getMemberById(Long id) {
+        return memberRepository.findById(id).orElseThrow(() ->new CustomException(ErrorCode.USER_NOT_FOUND));
+    }
 
     public Member findMemberByEmail(String email) {
         return memberRepository.findByEmail(email).orElseThrow(() ->new CustomException(ErrorCode.USER_NOT_FOUND));
@@ -40,5 +44,18 @@ public class MemberService {
                 .kilometerByCurrentCountry(kilometerByCurrentCountry)
                 .countryImageUrl(currentCountry.getCountryImageUrl())
                 .build();
+    }
+
+    public Member findOrCreateSocialMember(String email, String name, SocialLoginProvider provider) {
+        Member member = memberRepository.findByEmail(email).orElse(null);
+        if (member == null) {
+            member  = memberRepository.save(
+                    Member.builder()
+                    .email(email)
+                    .name(name)
+//                    .socialLoginProvider(provider)
+                    .build());
+        }
+        return member;
     }
 }

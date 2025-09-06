@@ -8,11 +8,14 @@ spring:
           google:
             client-id: ${GOOGLE_CLI}
             client-secret: ${GOOGLE_PASS}
-            redirect-uri: http://localhost:8080/login/oauth2/code/google
+            redirect-uri: "http://localhost:8080/login/oauth2/code/google"
+            authorization-grant-type: authorization_code
             scope:
-              - email
-              - profile
-
+              - profile     #이름, 프로필 이미지
+              - email       #이메일
+        provider:
+          google:
+            user-name-attribute: sub
   config:
     import: optional:file:.env[.properties]
   mvc:
@@ -43,7 +46,10 @@ spring:
 
 jwt:
   secret-key: ${SECRET_KEY}
-
+auth:
+  token:
+    hmacSecretBase64: ${SECRET_KEY} #토큰 서명키
+    accessTtlSec: 120000 #20분 배포후 10분으로 변경가능
 #fcm:
 #  service-account-path: classpath:firebase/memento_fcm_key.json
 #

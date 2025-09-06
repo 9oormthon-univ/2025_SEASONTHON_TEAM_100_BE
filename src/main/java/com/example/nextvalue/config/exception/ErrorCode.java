@@ -29,8 +29,12 @@ public enum ErrorCode {
     COUNTRY_NOT_FOUND(404, "C001", "존재하지 않는 국가입니다."),
 
 
-    //TASK
-    TASK_NOT_FOUND(404, "T003", "존재하지 않는 작업입니다."),
+    //oauth
+    OAUTH_LOGIN_FAIL(401, "O003", "oauth로그인 실패."),
+    UNSUPPORTED_OAUTH_PROVIDER(400, "O003", "지원하지 않는 소셜입니다."),
+    INVALID_TOKEN(400, "O003", "검증되지 않은 토큰입니다."),
+    EXPIRED_TOKEN(400, "O003", "만료된 토큰입니다."),
+    EMPTY_TOKEN(400, "O003", "토큰이 비어있습니다.")
     ;
     private final int status;
     private final String code;

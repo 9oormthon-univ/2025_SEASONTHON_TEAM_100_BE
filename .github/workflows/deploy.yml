@@ -1,0 +1,106 @@
+name: Dev CI/CD
+
+on:
+  push:
+    branches: [ main ]   # <- main으로 트리거면 main에 push/merge 해야 동작
+  workflow_dispatch:
+
+concurrency:
+  group: dev-deploy
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+          cache: gradle
+
+      - name: Make executable gradlew
+        run: chmod +x gradlew
+
+      - name: Build (skip tests for hackathon speed)
+        run: ./gradlew clean bootJar -x test
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-jar
+          path: build/libs/*.jar
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    env:
+      HOST: ${{ secrets.EC2_HOST }}
+      USER: ${{ secrets.EC2_USERNAME }}
+      # 안전한 기본값 표현 (빈 문자열 대비)
+      PORT: ${{ secrets.APP_PORT != '' && secrets.APP_PORT || 8080 }}
+    steps:
+      - name: Download artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: app-jar
+          path: build/libs
+
+      - name: Prepare SSH
+        run: |
+          mkdir -p ~/.ssh
+          chmod 700 ~/.ssh
+          ssh-keyscan -H $HOST >> ~/.ssh/known_hosts
+          chmod 644 ~/.ssh/known_hosts
+          echo "${{ secrets.EC2_SSH_KEY }}" > private_key.pem
+          chmod 600 private_key.pem
+
+      - name: Create .env locally
+        run: |
+          cat > .env <<'EOF'
+          DB_HOST=${{ secrets.DB_HOST }}
+          DB_PORT=${{ secrets.DB_PORT }}
+          DB_NAME=${{ secrets.DB_NAME }}
+          DB_USER=${{ secrets.DB_USER }}
+          DB_PASSWORD=${{ secrets.DB_PASSWORD }}
+          SECRET_KEY=${{ secrets.SECRET_KEY }}
+          GOOGLE_CLI=${{ secrets.GOOGLE_CLI }}
+          GOOGLE_PASS=${{ secrets.GOOGLE_PASS }}
+          GPT_API_KEY=${{ secrets.GPT_API_KEY }}
+          EOF
+          
+
+      - name: Upload release files
+        run: |
+          SHA=${GITHUB_SHA::7}
+          REL="/opt/app/releases/$SHA"
+          JAR=$(ls build/libs/*.jar | grep -v plain || ls build/libs/*.jar | head -n1)
+
+          ssh -i private_key.pem $USER@$HOST "mkdir -p $REL /opt/app/secure"
+          scp -i private_key.pem "$JAR" $USER@$HOST:$REL/app.jar
+          scp -i private_key.pem .env $USER@$HOST:/opt/app/.env
+          scp -i private_key.pem firebase.json $USER@$HOST:/opt/app/secure/firebase.json
+
+      - name: Switch symlink & restart service
+        run: |
+          SHA=${GITHUB_SHA::7}
+          REL="/opt/app/releases/$SHA"
+          ssh -i private_key.pem $USER@$HOST "ln -sfn $REL /opt/app/current && sudo systemctl restart realthon"
+
+      # ✅ TCP 포트 헬스체크 (인스턴스 내부에서 127.0.0.1 검사 → SG 영향 안 받음)
+      - name: Health check (TCP inside EC2)
+        run: |
+          for i in {1..60}; do
+            if ssh -i private_key.pem $USER@$HOST "nc -z 127.0.0.1 ${PORT}"; then
+              echo "Port ${PORT} open"; exit 0
+            fi
+            sleep 2
+          done
+          echo "Port ${PORT} still closed"; exit 1
+
+      - name: Cleanup key
+        if: always()
+        run: rm -f private_key.pem

@@ -2,12 +2,16 @@ package com.example.nextvalue.entity;
 
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Entity
 @NoArgsConstructor
 @Data
+@Builder
+@AllArgsConstructor
 public class Member {
     @GeneratedValue
     @Id
@@ -15,7 +19,7 @@ public class Member {
 
     private String name;
 
-    private String passwd;
+    private String password;
 
     private String loginId;
 
