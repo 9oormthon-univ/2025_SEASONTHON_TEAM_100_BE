@@ -50,6 +50,7 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http, JwtTokenUtil jwtTokenUtil) throws Exception {
         JwtFilter jwtFilter = new JwtFilter(jwtTokenUtil);
         http
+                .csrf(csrf->csrf.disable())
 //                .securityMatcher("/**")
 //                .csrf(AbstractHttpConfigurer::disable)
 //                .formLogin(AbstractHttpConfigurer::disable)

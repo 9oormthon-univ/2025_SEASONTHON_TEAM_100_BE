@@ -1,3 +1,5 @@
+openai:
+  api-key: ${GPT_API_KEY}
 spring:
   security:
     oauth2:
@@ -46,4 +48,6 @@ jwt:
 #  service-account-path: classpath:firebase/memento_fcm_key.json
 #
 #openai:
+
 #  api-key: ${OPENAI_API_KEY}
+
