@@ -82,7 +82,6 @@ jobs:
           ssh -i private_key.pem $USER@$HOST "sudo mkdir -p $REL /opt/app/secure && sudo chown -R $USER:$USER /opt/app"
           scp -i private_key.pem "$JAR" $USER@$HOST:$REL/app.jar
           scp -i private_key.pem .env $USER@$HOST:/opt/app/.env
-          scp -i private_key.pem firebase.json $USER@$HOST:/opt/app/secure/firebase.json
 
       - name: Switch symlink & restart service
         run: |
