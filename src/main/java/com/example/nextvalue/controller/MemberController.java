@@ -19,6 +19,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -53,6 +56,32 @@ public class MemberController {
         Diary diary = diaryService.findDiaryById(id);
         diary.setContents(dto.getContents());
         diary.setImageURI(diary.getImageURI());
+        return ResponseEntity.ok(ApiResponse.success(null));
+    }
+
+    @GetMapping("/member/{id}/friends")
+    public ResponseEntity<ApiResponse<List<Member>>> getFriends(@PathVariable("id") Long id){
+        return ResponseEntity.ok(ApiResponse.success(null,
+                memberService.getFriends(memberService.findMemberById(id))));
+    }
+
+    @PostMapping("/member/{id}/friends/add")
+    public ResponseEntity<?> addFriend(@PathVariable("id") Long id) {
+        Member foundMember = memberService.findMemberById(id);
+        memberService.addFriend(foundMember);
+        return ResponseEntity.ok(ApiResponse.success(null));
+    }
+
+    @GetMapping("/member/{id}/gallery")
+    public ResponseEntity<ApiResponse<List<String>>> getGallery(@PathVariable("id") Long id){
+        Member foundMember = memberService.findMemberById(id);
+        return ResponseEntity.ok(ApiResponse.success(null,foundMember.getGallery()));
+    }
+
+    @PostMapping("/member/{id}/gallery/add_picture")
+    public ResponseEntity<?> addPicture(@PathVariable("id") Long id, @RequestBody String image_uri){
+        Member foundMember = memberService.findMemberById(id);
+        foundMember.getGallery().add(image_uri);
         return ResponseEntity.ok(ApiResponse.success(null));
     }
 
