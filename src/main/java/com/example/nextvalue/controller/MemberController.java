@@ -3,6 +3,7 @@ package com.example.nextvalue.controller;
 
 import com.example.nextvalue.apiPayload.ApiResponse;
 import com.example.nextvalue.dto.DiaryEditDTO;
+import com.example.nextvalue.dto.MainPageDto;
 import com.example.nextvalue.dto.MyPageDTO;
 import com.example.nextvalue.entity.Diary;
 import com.example.nextvalue.entity.Member;
@@ -52,4 +53,11 @@ public class MemberController {
         return ResponseEntity.ok(ApiResponse.success(null));
     }
 
+
+    @GetMapping("/api/member/current-country")
+    public ResponseEntity<ApiResponse<MainPageDto.CurrentCountry>> getCurrentCountry(@AuthenticationPrincipal MemberDetails memberDetails) {
+
+        MainPageDto.CurrentCountry currentCountry = memberService.getCurrentCountry(memberDetails.getEmail());
+        return ResponseEntity.ok(ApiResponse.success(null,currentCountry));
+    }
 }

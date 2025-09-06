@@ -1,5 +1,7 @@
 package com.example.nextvalue.service;
 
+import com.example.nextvalue.config.exception.CustomException;
+import com.example.nextvalue.config.exception.ErrorCode;
 import com.example.nextvalue.dto.OAuthAttributes;
 import com.example.nextvalue.entity.Member;
 import com.example.nextvalue.jwt.JwtTokenUtil;
@@ -44,7 +46,7 @@ public class Oauth2UserService extends DefaultOAuth2UserService {
         log.info(oauthAttributes.getAttributes().toString());
 
         String email = oauthAttributes.getEmail();
-        Member findMember = memberRepository.findByEmail(email);
+        Member findMember = memberRepository.findByEmail(email).orElseThrow(()-> new CustomException(ErrorCode.USER_NOT_FOUND));
         if (findMember == null) {
             Member member = new Member();
             member.setEmail(email);
@@ -53,7 +55,7 @@ public class Oauth2UserService extends DefaultOAuth2UserService {
             memberRepository.save(member);
         }
 
-        Member returnMember = memberRepository.findByEmail(email);
+        Member returnMember = memberRepository.findByEmail(email).orElseThrow(()-> new CustomException(ErrorCode.USER_NOT_FOUND));;
         httpSession.setAttribute("loginMember", returnMember);
 
         return oAuth2User;

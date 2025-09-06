@@ -29,6 +29,9 @@ public class Member {
     // providerId : 구굴 로그인 한 유저의 고유 ID가 들어감
     private String providerId;
 
+    ///  total 만보기 횟수
+    private Long totalWalkCnt;
+
     @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinColumn(name = "diary_id")
     private Diary diary;
