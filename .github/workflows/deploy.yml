@@ -55,7 +55,7 @@ jobs:
           chmod 700 ~/.ssh
           ssh-keyscan -H $HOST >> ~/.ssh/known_hosts
           chmod 644 ~/.ssh/known_hosts
-          echo "${{ secrets.EC2_SSH_KEY }}" > private_key.pem
+          echo "${{ secrets.EC2_SSH_KEY }}" | tr -d '\r' > private_key.pem
           chmod 600 private_key.pem
 
       - name: Create .env locally
@@ -79,7 +79,7 @@ jobs:
           REL="/opt/app/releases/$SHA"
           JAR=$(ls build/libs/*.jar | grep -v plain || ls build/libs/*.jar | head -n1)
 
-          ssh -i private_key.pem $USER@$HOST "mkdir -p $REL /opt/app/secure"
+          ssh -i private_key.pem $USER@$HOST "sudo mkdir -p $REL /opt/app/secure && sudo chown -R $USER:$USER /opt/app"
           scp -i private_key.pem "$JAR" $USER@$HOST:$REL/app.jar
           scp -i private_key.pem .env $USER@$HOST:/opt/app/.env
           scp -i private_key.pem firebase.json $USER@$HOST:/opt/app/secure/firebase.json
